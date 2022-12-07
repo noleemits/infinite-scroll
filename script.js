@@ -8,9 +8,21 @@ function setAttributes(element, attributes) {
 const imageContainer = document.querySelector(".image-container");
 const imageLoader = document.querySelector(".loader");
 let photosArray = [];
-
+let ready = false;
+let imagesLoaded = 0;
+let totalImages = 0;
+//check if all images were loaded
+function imageLoaded() {
+  imagesLoaded++;
+  if (imagesLoaded === totalImages) {
+    ready = true;
+    console.log(ready);
+  }
+}
 //function to dipslay the photos
 function displayPhotos() {
+  totalImages = photosArray.length;
+
   photosArray.forEach((photo) => {
     //create link
     const item = document.createElement("a");
@@ -29,6 +41,8 @@ function displayPhotos() {
     //put img inside anchor
     item.appendChild(img);
     imageContainer.appendChild(item);
+    //check when every image is finished loading
+    img.addEventListener("load", imageLoaded);
   });
 }
 
@@ -45,11 +59,19 @@ async function getPhotos() {
     const response = await fetch(apiUrl);
     photosArray = await response.json();
     displayPhotos();
-    console.log("hellos");
   } catch (error) {
     //error
   }
 }
+
+//Check to see scrolled
+
+window.addEventListener("scroll", () => {
+  if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 1000 && ready) {
+    //  ready = false;
+    getPhotos();
+  }
+});
 
 //on load
 getPhotos();
